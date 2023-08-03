@@ -1,0 +1,28 @@
+<div class="background">
+  <img src="../../assets/chat-messaging-speech-bubble-icon.jpg">
+    <div class="card">
+        <div style="text-align: center; margin-bottom: 10px;">
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    
+    <h2 style="align-content: center;">Login</h2>
+  <input type="email" id="email" placeholder="Enter Your Email " formControlName="email" required><br>
+  <span style="color: red;"
+  *ngIf="loginForm.get('email')?.errors?.['required'] && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)"><br>
+  Email is required.
+</span>
+<br>
+
+  
+  <input type="password" id="password" placeholder="Enter Your Password " formControlName="password" required><br>
+  <span style="color: red;"
+  *ngIf="loginForm.get('password')?.errors?.['required'] && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)"><br>
+  Password is required.
+</span><br>
+
+  <button type="submit">Login</button>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+</form>
+<div class="register-form"><br>
+  Don't have an account?<a routerLink="/register">Create an Account</a>
+ 
+</div>

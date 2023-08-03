@@ -1,0 +1,32 @@
+<div class="sidebar">
+
+  <div class="table-container">
+    <table>
+  <thead style="display: block; ;">
+   <strong> USER LIST</strong>
+  </thead>
+  <tbody>
+    <ng-container *ngIf="userList.length === 0; else userListData">
+      <tr>
+        <td colspan="2">Loading user list...</td>
+      </tr>
+    </ng-container>
+    <ng-template #userListData>
+      <tr *ngFor="let user of userList" (click)="loadConversationHistory(user.id)">
+        <td style="background-color: #1563bd; border-radius: 10px;"><span> <div class="avatar">
+          <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="User name">
+          <!-- <div class="status off"></div> -->
+          {{ user.name }}</div></span>
+          <span>{{ user.email }}</span></td>
+      </tr>
+    </ng-template>
+  </tbody>
+</table>
+<div class="footer" style="position: fixed;">
+<strong> log Information<a routerLink="/logs"> Log</a></strong>
+</div>
+</div>
+
+
+
+</div>

@@ -1,0 +1,20 @@
+<div class="card">
+  <div style="text-align: center; margin-bottom: 10px;">
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+<h2 style="align-content: center;">Register</h2>
+<input type="text" placeholder="Enter Name" id="name" formControlName="name" required><br>
+
+<input type="email" placeholder="Enter Email Address" id="email" formControlName="email" required><br>
+
+<input type="password" placeholder="Enter Password" id="password" formControlName="password" required><br>
+
+<button type="submit">Register</button>
+</form>
+</div>
+<div class="login-form" style="text-align: center; margin-bottom: 10px;">
+Already have an account?<a routerLink="/">Sign in to your Account</a>
+</div>
+
+
+
