@@ -20,6 +20,20 @@
 </span><br>
 
   <button type="submit">Login</button>
+  <div style="margin-top: 10px; margin-left: 110px;">
+
+    <asl-google-signin-button type='icon' size='medium' 
+    type="standard"
+    shape="rectangular"
+    theme="outline"
+    text="signin_with"
+    logo_alignment="left"
+    (click)="signInWithGoogle(user.idToken)"></asl-google-signin-button> 
+   
+ 
+</div>
+
+
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 </form>
 <div class="register-form"><br>

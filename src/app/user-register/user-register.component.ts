@@ -2,6 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../services/user.service';
 import {FormsModule,FormBuilder,FormGroup,Validators} from '@angular/forms';
+import { SocialLoginModule, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
+import { SocialAuthService } from "@abacritt/angularx-social-login";
+import { GoogleLoginProvider } from "@abacritt/angularx-social-login";
+import { HttpClient } from '@angular/common/http';
+import { SocialUser } from "@abacritt/angularx-social-login";
+import {SocialserviceService} from '../services/socialservice.service'
 
 @Component({
   selector: 'app-user-register',
@@ -10,14 +16,27 @@ import {FormsModule,FormBuilder,FormGroup,Validators} from '@angular/forms';
 })
 export class UserRegisterComponent implements OnInit{
   registerForm!: FormGroup;
-  
+  private accessToken = '';
+  user!: SocialUser;
+  loggedIn!: boolean;
   constructor(
     private formBuilder: FormBuilder,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private authService: SocialAuthService,
+     private httpClient: HttpClient,
+     private socialService:SocialserviceService
   ) { }
 
   ngOnInit() {
+
+    this.authService.authState.subscribe((user) => {
+      console.log(user.idToken);
+      this.user = user;
+      this.loggedIn = (user != null);
+    });
+
+
     this.registerForm = this.formBuilder.group({
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
@@ -36,7 +55,7 @@ export class UserRegisterComponent implements OnInit{
       .subscribe(
         (response) => {
           console.log('User Registration successful', response);
-          // Redirect user to login after successful registration
+         
           this.router.navigate(['/']);
         },
         (error) => {
@@ -44,6 +63,14 @@ export class UserRegisterComponent implements OnInit{
         }
       );
   }
+  signInWithGoogle(idToken: string): void {
+    console.log("Token to send:", idToken); // Use the stored token
+    this.socialService.socialLogin(idToken).subscribe((res) => {
+      this.router.navigate(['/chat']);
+      console.log("Response from backend:", res);
+    });
+  }
+
   }
 
 

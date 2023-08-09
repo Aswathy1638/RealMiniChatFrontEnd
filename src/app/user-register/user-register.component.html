@@ -10,6 +10,16 @@
 <input type="password" placeholder="Enter Password" id="password" formControlName="password" required><br>
 
 <button type="submit">Register</button>
+<div style="margin-top: 10px; margin-left: 110px;">
+
+  <asl-google-signin-button type='icon' size='medium' 
+  type="standard"
+  shape="rectangular"
+  theme="outline"
+  text="signin_with"
+  logo_alignment="left"
+  (click)="signInWithGoogle(user.idToken)"></asl-google-signin-button> 
+ </div>
 </form>
 </div>
 <div class="login-form" style="text-align: center; margin-bottom: 10px;">
