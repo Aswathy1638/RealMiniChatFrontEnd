@@ -13,11 +13,13 @@
     </ng-container>
     <ng-template #userListData>
       <tr *ngFor="let user of userList" (click)="loadConversationHistory(user.id)">
+      <!-- <tr *ngFor="let user of userList (click)="loadConversationHistory(user)" > -->
         <td style="background-color: #1563bd; border-radius: 10px;"><span> <div class="avatar">
           <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="User name">
-          <!-- <div class="status off"></div> -->
-          {{ user.name }}</div></span>
-          <span>{{ user.email }}</span></td>
+          <div class="status off"></div>
+          {{ user.name}}<br>{{ user.email}}</div></span>
+          <!-- <pre>{{ user | json }}</pre> -->
+          <span></span></td>
       </tr>
     </ng-template>
   </tbody>

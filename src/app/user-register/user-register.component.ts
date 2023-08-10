@@ -63,7 +63,7 @@ export class UserRegisterComponent implements OnInit{
         }
       );
   }
-  signInWithGoogle(idToken: string): void {
+  signUpWithGoogle(idToken: string): void {
     console.log("Token to send:", idToken); // Use the stored token
     this.socialService.socialLogin(idToken).subscribe((res) => {
       this.router.navigate(['/chat']);

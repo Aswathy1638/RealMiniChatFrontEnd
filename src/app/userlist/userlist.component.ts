@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./userlist.component.css']
 })
 export class UserlistComponent  implements OnInit{
-  userList: any[]=[];
+  userList: any[] = [];
    isLoading : boolean=true;
    conversationId!: number;
    messages :any[]=[];
@@ -22,17 +22,10 @@ export class UserlistComponent  implements OnInit{
     this.loadUserList();
   }
   loadUserList() {
-    this.userService.GetUserList().subscribe(
-      (users:any[])=>{
-        this.userList=users;
-        this.isLoading=false;
-      },
-      (error)=>{
-        console.log("Error Occured while fetching users",error);
-        this.isLoading=false;
-      }
-      
-    )
+    this.userService.GetUserList().subscribe(data => {
+      this.userList = data;
+      console.log(this.userList);
+    });
   }
 
   loadConversationHistory(userId:number) {
