@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {HttpClient,HttpHeaders} from '@angular/common/http'
+import {HttpClient,HttpHeaders, HttpParams} from '@angular/common/http'
 import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
@@ -8,7 +8,23 @@ export class MessageService {
   private apiUrl='https://localhost:7298/api/Messages';
   constructor(private http:HttpClient) { }
 
-  getConversationHistory(userId:number):Observable<any[]>{
+  // getConversationHistory(userId:string,count: number = 20, sort: string = 'asc'):Observable<any[]>{
+  //   const url=`${this.apiUrl}/${userId}`
+
+  //   const jwtToken = localStorage.getItem('jwtToken');
+
+  //   const headers = new HttpHeaders({
+  //     'Authorization': `Bearer ${jwtToken}`
+  //   });
+  //   const params = new HttpParams()
+  //   // .set('userId',userId)
+  //     .set('count', count.toString())
+  //     .set('sort', sort);
+  //   return this.http.get<any[]>(url,{ headers, params });
+  // }
+
+
+  getConversationHistory(userId: string, before: Date, count: number, sort: string):Observable<any[]>{
     const url=`${this.apiUrl}/${userId}`
 
     const jwtToken = localStorage.getItem('jwtToken');
@@ -16,10 +32,15 @@ export class MessageService {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${jwtToken}`
     });
-    return this.http.get<any[]>(url,{ headers: headers });
+    const params = new HttpParams()
+    // .set('userId',userId)
+      .set('count', count.toString())
+      .set('sort', sort);
+    return this.http.get<any[]>(url,{ headers, params });
   }
 
-  sendNewMessage(receiverId: number, content: string): Observable<any> {
+
+  sendNewMessage(receiverId: string, content: string): Observable<any> {
     const body = { receiverId, content };
     const token = localStorage.getItem('jwtToken');
     const httpOptions = {
@@ -28,6 +49,7 @@ export class MessageService {
         'Authorization': `Bearer ${token}`
       })
     };
+    console.log(receiverId);
     return this.http.post<any>(this.apiUrl, body, httpOptions);
   }
   updateMessage(messageId: number, updatedMessage: any): Observable<any> {
