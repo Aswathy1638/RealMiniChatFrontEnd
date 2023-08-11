@@ -49,7 +49,24 @@
 
 <div class="chat-container">
   
-    <h2 style="margin-left: 220px;">Conversation History</h2>
+   <div class="sort"> <h2 >Conversation History</h2>
+    
+    <div class="conversation-controls" style="margin-left: 220px;">
+      <label for="sort">Sort:</label>
+      <select id="sort" [(ngModel)]="sort">
+        <option value="asc">Ascending</option>
+        <option value="desc">Descending</option>
+      </select>
+
+      <label for="before">Before:</label>
+      <input type="datetime-local" id="before" [(ngModel)]="before">
+
+      <label for="count">Count:</label>
+      <input type="number" id="count" [(ngModel)]="count">
+
+      <button (click)="loadConversationHistory()">Apply</button>
+    </div>
+  </div>
     <div *ngIf="isLoading" class="loading-message">
       Loading conversation history...
     </div>
@@ -58,7 +75,7 @@
     </div>
   <div *ngIf="messages.length > 0" class="chat">
     <ul>
-      <li *ngFor="let message of messages" class="chat-message" (contextmenu)="onContextMenu($event, message)">
+      <li *ngFor="let message of messages" class="chat-message" (contextmenu)="onContextMenu($event, message) " >
         <div *ngIf="message.senderId === userId; else receivedMessage" class="incoming-message">
           <strong>{{ message.name }}</strong> {{ message.content }}<br>
           <small>{{ message.timestamp }}</small>

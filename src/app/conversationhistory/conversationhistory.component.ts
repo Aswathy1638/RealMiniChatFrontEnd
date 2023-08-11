@@ -13,54 +13,98 @@ export class ConversationhistoryComponent implements OnInit {
   conversationId!: number;
   messages :any[]=[];
   isLoading!: boolean;
-  userId!: number;
-  selectedUserId!: number; 
+  userId!: string;
+  selectedUserId!: string; 
   newMessageContent: string = '';
   editingMessageIndex: number | null = null;
   editedMessageContent: string = '';
   editingMessage: any | null = null;
   showEditButton: { [key: number]: boolean } = {};
+  before: Date = new Date();
+  count: number = 20;
+  sort: string = 'desc';
 
  
   /**
    *
    */
   constructor(private route:ActivatedRoute,private messageSevice:MessageService,private userService:UserService) { } 
-  ngOnInit(): void {
-     // Get the userId from the route parameter
-  this.route.paramMap.subscribe(params => {
-    const userIdString = params.get('userId');
-    if (userIdString !== null) {
-      this.userId = parseInt(userIdString, 10);
-      // Call the service method to get the conversation history
-      this.loadConversationHistory(this.userId);
-    } else {
-      console.error('Invalid userId');
-    }
-  });
-   
-  }
+  // ngOnInit(): void {
+  //    // Get the userId from the route parameter
+  // this.route.paramMap.subscribe(params => {
+  //   const userIdString = params.get('userId');
+  //   console.log(userIdString);
+  //   if (userIdString !== null) {
+  //     //this.userId = parseInt(userIdString, 10);
+  //     // Call the service method to get the conversation history
+  //     this.selectedUserId=userIdString;
+  //     this.loadConversationHistory(this.selectedUserId);
+  //     console.log(params);
 
- loadConversationHistory(userId: number) {
-  this.selectedUserId=userId;
-  
-  
-   this.messageSevice.getConversationHistory(this.userId).subscribe(
-    (data) => {
-      this.messages = data;
-      this.isLoading = false;
-      console.log(this.selectedUserId,userId);
-    },
-    (error)=>
-    {
-      console.log('error in fetching history',error);
-      
-      this.isLoading=false;
-    }
-   );
-  
-  
+  //   } else {
+  //     console.error('Invalid userId');
+  //   }
+  // });
+   
+  // }
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      this.userId = params['userId'];
+      this.loadConversationHistory();
+    });
   }
+//  loadConversationHistory(userId: string) {
+//   this.selectedUserId=userId;
+  
+  
+//    this.messageSevice.getConversationHistory(this.userId).subscribe(
+//     (data) => {
+//       this.messages = data;
+//       this.isLoading = false;
+//       console.log("here is the id",this.selectedUserId,userId);
+//     },
+//     (error)=>
+//     {
+//       console.log('error in fetching history',error);
+      
+//       this.isLoading=false;
+//     }
+//    );
+  
+  
+//   }
+
+// loadConversationHistory(userId: string) {
+//   this.selectedUserId = userId;
+
+//   this.messageSevice.getConversationHistory(this.selectedUserId).subscribe(
+//     (data) => {
+//       this.messages = data;
+//       this.isLoading = false;
+//       console.log("here is the id", this.selectedUserId, userId);
+//       console.log(data);
+//     },
+//     (error) => {
+//       console.log('error in fetching history', error);
+//       this.isLoading = false;
+//     }
+//   );
+// }
+loadConversationHistory(): void {
+  this.messageSevice.getConversationHistory(this.userId, this.before, this.count, this.sort)
+    .subscribe((data: any[]) => {
+      this.messages = data;
+      console.log(this.messages);
+    });
+}
+
+loadMoreMessages(): void {
+  const oldestMessage = this.messages[this.messages.length - 1];
+  if (oldestMessage) {
+    this.before = new Date(oldestMessage.timestamp);
+    this.loadConversationHistory();
+  }
+}
   get userList(): any[] {
     return this.userService.userList;
   }
@@ -70,7 +114,7 @@ export class ConversationhistoryComponent implements OnInit {
       return; // Don't send empty messages
     }
   
-    this.messageSevice.sendNewMessage(this.selectedUserId, this.newMessageContent).subscribe(
+    this.messageSevice.sendNewMessage(this.userId, this.newMessageContent).subscribe(
       (response) => {
         // Message sent successfully, append the new message to the conversation history
         const newMessage = {
@@ -103,6 +147,7 @@ export class ConversationhistoryComponent implements OnInit {
     }
   }
 
+  
   onMouseEnter(message: any) {
     if (message.senderId === this.userId && !message.editing) {
       this.showEditButton[message.id] = true;

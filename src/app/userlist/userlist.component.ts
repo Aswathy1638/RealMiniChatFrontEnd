@@ -28,7 +28,7 @@ export class UserlistComponent  implements OnInit{
     });
   }
 
-  loadConversationHistory(userId:number) {
+  loadConversationHistory(userId:string) {
     this.router.navigate(['/chat/user', userId]);
    
     }
