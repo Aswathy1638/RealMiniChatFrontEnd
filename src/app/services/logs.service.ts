@@ -21,25 +21,20 @@ export class LogsService {
         }
 
     const token = localStorage.getItem('jwtToken');
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      })
-    };
+    
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`
     });
     let params = new HttpParams();
 
+    if (endTime) {
+      params = params.set('endTime', endTime.toString());
+    }
     if (startTime) {
       params = params.set('startTime', startTime.toString());
     }
 
-    if (endTime) {
-      params = params.set('endTime', endTime.toString());
-    }
 
     return this.http.get<any[]>(this.baseUrl,{headers:headers,params:params}).pipe(
       map((response: any) => response.logs) // Extract the 'messages' array from the response
