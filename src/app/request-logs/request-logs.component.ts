@@ -36,49 +36,113 @@ export class RequestLogsComponent implements OnInit{
     this.loadLogs();
   }
 
- loadLogs() {
-  console.log('Loading logs...');
-  this.logsService.getLogs(this.startTime, this.endTime).subscribe(
-    (data: any) => {
-      console.log('Logs data received:', data);
-      this.logs = data;
-     
-    },
-    (error) => {
-      console.log('Error fetching logs:', error);
+  onCustomTimeChange() {
+    // Convert customStartTime and customEndTime to ISO 8601 format
+    if (this.customStartTime) {
+      this.startTime = new Date(this.customStartTime).toISOString();
     }
-  );
-}
+    if (this.customEndTime) {
+      this.endTime = new Date(this.customEndTime).toISOString();
+    }
+  }
 
+  loadLogs() {
+    console.log('Loading logs...');
+    this.logsService.getLogs(this.startTime, this.endTime).subscribe(
+      (data: any) => {
+        console.log('Logs data received:', data);
+        this.logs = data;
+      },
+      (error) => {
+        console.log('Error fetching logs:', error);
+      }
+    );
+  }
 
-
-  onTimeRangeSelect(range: string) {
-    const currentTime = new Date().toISOString();
-    switch (range) {
-      case 'last5mins':
-        const last5Mins = new Date();
+  onTimeRangeSelect() {
+    if (this.selectedTimeframe === 'custom') {
+      // Custom timeframe selected, use customStartTime and customEndTime
+      this.startTime = this.customStartTime;
+      this.endTime = this.customEndTime;
+    } else {
+      // Use preset timeframes
+      const currentTime = new Date().toISOString();
+      switch (this.selectedTimeframe) {
+        case 'last5mins':
+          const last5Mins = new Date();
         last5Mins.setMinutes(last5Mins.getMinutes() - 5);
         this.startTime = last5Mins.toISOString();
         this.endTime = currentTime;
         break;
-      case 'last10mins':
-        const last10Mins = new Date();
-        last10Mins.setMinutes(last10Mins.getMinutes() - 10);
-        this.startTime = last10Mins.toISOString();
-        this.endTime = currentTime;
-        break;
-      case 'last30mins':
-        const last30Mins = new Date();
-        last30Mins.setMinutes(last30Mins.getMinutes() - 30);
-        this.startTime = last30Mins.toISOString();
-        this.endTime = currentTime;
-        break;
-      default:
-        break;
+        case 'last10mins':
+          this.startTime = calculateStartTime(10);
+          this.endTime = currentTime;
+          break;
+        case 'last30mins':
+          this.startTime = calculateStartTime(30);
+          this.endTime = currentTime;
+          break;
+        default:
+          break;
+      }
     }
 
     this.loadLogs();
   }
-  }
+}
+function calculateStartTime(minutes: number): string {
+  const startTime = new Date();
+  startTime.setMinutes(startTime.getMinutes() - minutes);
+  return startTime.toISOString();
+}
+
+
+
+
+
+//  loadLogs() {
+//   console.log('Loading logs...');
+//   this.logsService.getLogs(this.startTime, this.endTime).subscribe(
+//     (data: any) => {
+//       console.log('Logs data received:', data);
+//       this.logs = data;
+     
+//     },
+//     (error) => {
+//       console.log('Error fetching logs:', error);
+//     }
+//   );
+// }
+
+
+
+//   onTimeRangeSelect(range: string) {
+//     const currentTime = new Date().toISOString();
+//     switch (range) {
+//       case 'last5mins':
+//         const last5Mins = new Date();
+//         last5Mins.setMinutes(last5Mins.getMinutes() - 5);
+//         this.startTime = last5Mins.toISOString();
+//         this.endTime = currentTime;
+//         break;
+//       case 'last10mins':
+//         const last10Mins = new Date();
+//         last10Mins.setMinutes(last10Mins.getMinutes() - 10);
+//         this.startTime = last10Mins.toISOString();
+//         this.endTime = currentTime;
+//         break;
+//       case 'last30mins':
+//         const last30Mins = new Date();
+//         last30Mins.setMinutes(last30Mins.getMinutes() - 30);
+//         this.startTime = last30Mins.toISOString();
+//         this.endTime = currentTime;
+//         break;
+//       default:
+//         break;
+//     }
+
+//     this.loadLogs();
+//   }
+ // }
 
 
