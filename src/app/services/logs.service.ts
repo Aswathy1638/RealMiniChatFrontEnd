@@ -10,13 +10,13 @@ export class LogsService {
   private baseUrl = 'https://localhost:7298/api/Logs';
   constructor(private http: HttpClient) { 
       }
-      getLogs(startTime?: string, endTime?: string): Observable<any[]> {
+      getLogs(startTime?: Date, endTime?: Date): Observable<any[]> {
         // If startTime and endTime are not provided, set them to default values (last 5 mins)
         if (!startTime || !endTime) {
-          const defaultEndTime = new Date().toISOString();
+          const defaultEndTime = new Date();
           const defaultStartTime = new Date();
           defaultStartTime.setMinutes(defaultStartTime.getMinutes() - 5);
-          startTime = defaultStartTime.toISOString();
+          startTime = defaultStartTime;
           endTime = defaultEndTime;
         }
 
@@ -36,7 +36,7 @@ export class LogsService {
     }
 
 
-    return this.http.get<any[]>(this.baseUrl,{headers:headers,params:params}).pipe(
+    return this.http.get<any[]>(this.baseUrl,{headers:headers}).pipe(
       map((response: any) => response.logs) // Extract the 'messages' array from the response
     );;;
     
