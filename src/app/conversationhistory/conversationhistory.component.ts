@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import {MessageService} from '../services/message.service'
 import {UserService} from '../services/user.service'
 import { HttpHeaders } from '@angular/common/http';
+import {SignalService} from '../services/signal.service'
 
 @Component({
   selector: 'app-conversationhistory',
@@ -23,12 +24,17 @@ export class ConversationhistoryComponent implements OnInit {
   before: Date = new Date();
   count: number = 20;
   sort: string = 'desc';
+  searchResultsSubscription: any;
+  searchResults:any[]=[];
+  searchQuery: any;
+  conversationHistory: string[] = [];
+  messageToSend: string = '';
 
  
   /**
    *
    */
-  constructor(private route:ActivatedRoute,private messageSevice:MessageService,private userService:UserService) { } 
+  constructor(private route:ActivatedRoute,private messageSevice:MessageService,private userService:UserService,private signalRservice:SignalService) { } 
   // ngOnInit(): void {
   //    // Get the userId from the route parameter
   // this.route.paramMap.subscribe(params => {
@@ -52,6 +58,19 @@ export class ConversationhistoryComponent implements OnInit {
       this.userId = params['userId'];
       this.loadConversationHistory();
     });
+    this.signalRservice.startConnection()
+    .then(() => {
+      console.log('SignalR connection started');
+      // Handle initialization or other logic
+    })
+    .catch(error => console.error('Error starting SignalR connection:', error));
+    
+  // Listen for received messages
+  this.signalRservice.onReceiveMessage((message: string) => {
+    // Handle received messages and update UI
+    this.appendMessageToConversation(message);
+  });
+
   }
 //  loadConversationHistory(userId: string) {
 //   this.selectedUserId=userId;
@@ -108,32 +127,47 @@ loadMoreMessages(): void {
   get userList(): any[] {
     return this.userService.userList;
   }
-
   sendMessage() {
-    if (!this.newMessageContent.trim()) {
-      return; // Don't send empty messages
-    }
-  
-    this.messageSevice.sendNewMessage(this.userId, this.newMessageContent).subscribe(
-      (response) => {
-        // Message sent successfully, append the new message to the conversation history
-        const newMessage = {
-          senderId:this.selectedUserId ,
-          receiverId:this.userId ,
-          content: this.newMessageContent,
-          timestamp: new Date().toISOString()
-        };
-        this.messages.push(newMessage);
-  
-        // Clear the new message input field
-        this.newMessageContent = '';
-      },
-      (error) => {
-        console.log('error in sending message', error);
-        // Display relevant error message to the user
-      }
-    );
+    // Send message using SignalR service
+    const receiverId = 'RecipientUserId'; 
+    const message = this.messageToSend;
+    this.signalRservice.sendMessage(receiverId, message)
+      .then(() => {
+        // Handle success
+      })
+      .catch(error => {
+        console.error('Error sending message:', error);
+        // Handle error
+      });
   }
+  private appendMessageToConversation(message: string) {
+    this.conversationHistory.push(message);
+  }
+  // sendMessage() {
+  //   if (!this.newMessageContent.trim()) {
+  //     return; // Don't send empty messages
+  //   }
+  
+  //   this.messageSevice.sendNewMessage(this.userId, this.newMessageContent).subscribe(
+  //     (response) => {
+  //       // Message sent successfully, append the new message to the conversation history
+  //       const newMessage = {
+  //         senderId:this.selectedUserId ,
+  //         receiverId:this.userId ,
+  //         content: this.newMessageContent,
+  //         timestamp: new Date().toISOString()
+  //       };
+  //       this.messages.push(newMessage);
+  
+  //       // Clear the new message input field
+  //       this.newMessageContent = '';
+  //     },
+  //     (error) => {
+  //       console.log('error in sending message', error);
+  //       // Display relevant error message to the user
+  //     }
+  //   );
+  // }
   
   onContextMenu(event: MouseEvent, message: any) {
     event.preventDefault();
@@ -217,5 +251,37 @@ loadMoreMessages(): void {
     );
   }
 
+  searchMessages(): void {
+    if (this.searchQuery.trim() === '') {
+      return;
+    }
 
+    // Call the message service to search for messages
+    this.searchResultsSubscription = this.messageSevice
+      .searchMessages(this.searchQuery)
+      .subscribe(
+        (results) => {
+          this.searchResults = results;
+        },
+        (error) => {
+          console.error('Error searching messages:', error);
+          // Handle error and display appropriate message
+        }
+      );
+  }
+
+  closeSearchResults(): void {
+    this.searchResults = [];
+    if (this.searchResultsSubscription) {
+      this.searchResultsSubscription.unsubscribe();
+    }
+  }
 }
+
+
+
+
+
+
+
+

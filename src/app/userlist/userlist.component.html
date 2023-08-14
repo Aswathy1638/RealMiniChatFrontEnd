@@ -1,3 +1,20 @@
+<div class="search">
+<input type="text" [(ngModel)]="searchQuery" placeholder="Search messages...">
+<button (click)="searchMessages()">Search</button>
+</div>
+
+<div *ngIf="searchResults.length > 0" class="search-results">
+<h3>Search Results</h3>
+<ul>
+  <li *ngFor="let message of searchResults" class="chat-message">
+    <div class="incoming-message">
+      <strong>{{ message.name }}</strong> {{ message.content }}<br>
+      <small>{{ message.timestamp }}</small>
+    </div>
+  </li>
+</ul>
+<button (click)="closeSearchResults()">Close</button>
+</div>
 <div class="sidebar">
 
   <div class="table-container">
@@ -12,7 +29,10 @@
       </tr>
     </ng-container>
     <ng-template #userListData>
+    
       <tr *ngFor="let user of userList" (click)="loadConversationHistory(user.id)">
+
+        
       <!-- <tr *ngFor="let user of userList (click)="loadConversationHistory(user)" > -->
         <td style="background-color: #1563bd; border-radius: 10px;"><span> <div class="avatar">
           <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="User name">
@@ -25,7 +45,10 @@
   </tbody>
 </table>
 <div class="footer" style="position: fixed;">
+  
 <strong> log Information<a routerLink="/logs"> Log</a></strong>
+
+
 </div>
 </div>
 
