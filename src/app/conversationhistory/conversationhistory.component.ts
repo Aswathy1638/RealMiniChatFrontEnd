@@ -4,6 +4,8 @@ import {MessageService} from '../services/message.service'
 import {UserService} from '../services/user.service'
 import { HttpHeaders } from '@angular/common/http';
 import {SignalService} from '../services/signal.service'
+import { Message } from '../Message.model';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-conversationhistory',
@@ -34,42 +36,15 @@ export class ConversationhistoryComponent implements OnInit {
   /**
    *
    */
-  constructor(private route:ActivatedRoute,private messageSevice:MessageService,private userService:UserService,private signalRservice:SignalService) { } 
-  // ngOnInit(): void {
-  //    // Get the userId from the route parameter
-  // this.route.paramMap.subscribe(params => {
-  //   const userIdString = params.get('userId');
-  //   console.log(userIdString);
-  //   if (userIdString !== null) {
-  //     //this.userId = parseInt(userIdString, 10);
-  //     // Call the service method to get the conversation history
-  //     this.selectedUserId=userIdString;
-  //     this.loadConversationHistory(this.selectedUserId);
-  //     console.log(params);
-
-  //   } else {
-  //     console.error('Invalid userId');
-  //   }
-  // });
-   
-  // }
+  constructor(private route:ActivatedRoute,private messageSevice:MessageService,private userService:UserService,private signalRservice:SignalService,private cdr: ChangeDetectorRef) { } 
+  
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.userId = params['userId'];
       this.loadConversationHistory();
     });
-    this.signalRservice.startConnection()
-    .then(() => {
-      console.log('SignalR connection started');
-      // Handle initialization or other logic
-    })
-    .catch(error => console.error('Error starting SignalR connection:', error));
-    
-  // Listen for received messages
-  this.signalRservice.onReceiveMessage((message: string) => {
-    // Handle received messages and update UI
-    this.appendMessageToConversation(message);
-  });
+    this.signalRservice.startConnection();
+ 
 
   }
 //  loadConversationHistory(userId: string) {
@@ -127,22 +102,53 @@ loadMoreMessages(): void {
   get userList(): any[] {
     return this.userService.userList;
   }
-  sendMessage() {
-    // Send message using SignalR service
-    const receiverId = 'RecipientUserId'; 
-    const message = this.messageToSend;
-    this.signalRservice.sendMessage(receiverId, message)
-      .then(() => {
-        // Handle success
-      })
-      .catch(error => {
-        console.error('Error sending message:', error);
-        // Handle error
-      });
-  }
+  // sendMessage() {
+  //   const receiverId = this.userId; 
+  //   const message = this.messageToSend;
+  //   try {
+  //      this.signalRservice.sendMessage(receiverId, message);
+  //     console.log('Message sent successfully','receiver Id is',receiverId);
+  //   } catch (error) {
+  //     console.error('Error sending message:', error);
+  //   }
+  // }
+  
   private appendMessageToConversation(message: string) {
     this.conversationHistory.push(message);
   }
+
+ sendMessage() {
+    if (!this.newMessageContent.trim()) {
+      return; // Don't send empty messages
+    }
+  
+    this.messageSevice.sendNewMessage(this.userId, this.newMessageContent).subscribe(
+      (response) => {
+        // Message sent successfully, append the new message to the conversation history
+        const newMessage = {
+          senderId:this.selectedUserId ,
+          receiverId:this.userId ,
+          content: this.newMessageContent,
+          timestamp: new Date().toISOString()
+        };
+        this.signalRservice.sendMessage(newMessage);
+        this.signalRservice.onReceiveMessage((receivedmessage: Message) => {
+          console.log('Received message:', receivedmessage);
+          // Handle the received message here, for example, by adding it to the messages array
+          this.messages.push(receivedmessage);});
+          this.cdr.detectChanges();
+          // Clear the new message input field
+        this.newMessageContent = '';
+      },
+      (error) => {
+        console.log('error in sending message', error);
+        // Display relevant error message to the user
+      }
+    );
+  }
+
+
+
   // sendMessage() {
   //   if (!this.newMessageContent.trim()) {
   //     return; // Don't send empty messages
