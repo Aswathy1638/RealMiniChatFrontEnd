@@ -16,12 +16,21 @@ export class SignalService {
     .withUrl('https://localhost:7298/chathub')
     .configureLogging(LogLevel.Information)
     .build();
+    this.hubConnection.start().then(() => {
+      console.log('SignalR Connection started');
+      const connectionId = this.hubConnection.connectionId;
+        console.log("Connection ID:", connectionId);
+    }).catch((error) => {
+      console.error('Error starting SignalR connection:', error);
+    });
+  
   }
 
   startConnection() {
     if (this.hubConnection.state === signalR.HubConnectionState.Disconnected) {
       this.hubConnection.start().then(() => {
         console.log('Hub connection started');
+      
     
       }).catch(error => {
         console.error('Error starting hub connection:', error);
@@ -42,7 +51,15 @@ export class SignalService {
     }
   }
 
-  onReceiveMessage(callback: ( message: Message) => void) {
-    this.hubConnection.on('ReceiveOne', callback);
+  // onReceiveMessage(callback: ( message: Message) => void) {
+  //   this.hubConnection.on('ReceiveOne', callback);
+  // }
+  onReceiveMessage(callback: (message: Message) => void) {
+    if (this.hubConnection) {
+      this.hubConnection.on('ReceiveOne', (message: Message) => {
+        console.log('ReceivedOne:', message);
+        callback(message);
+      });
+    }
   }
 }

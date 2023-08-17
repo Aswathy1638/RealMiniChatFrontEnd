@@ -92,7 +92,7 @@
     <div *ngIf="!isLoading && messages.length === 0" class="no-messages">
       No conversation history found.
     </div>
-  <div *ngIf="messages.length > 0" class="chat">
+  <!-- <div *ngIf="messages.length > 0" class="chat">
     <ul>
       <li *ngFor="let message of messages" class="chat-message" (contextmenu)="onContextMenu($event, message) " >
         <div *ngIf="message.senderId === userId; else receivedMessage" class="incoming-message">
@@ -119,7 +119,35 @@
         </ng-template>
       </li>
     </ul>
+  </div> -->
+
+  <div *ngIf="messages.length > 0" class="chat">
+    <ul>
+      <li *ngFor="let message of messages" class="chat-message" (contextmenu)="onContextMenu($event, message)">
+        <ng-container *ngIf="message.senderId === userId; else receivedMessage">
+          <div class="incoming-message">
+            <strong>{{ message.name }}</strong> {{ message.content }}<br>
+            <small>{{ message.timestamp }}</small>
+          </div>
+        </ng-container>
+        <ng-template #receivedMessage>
+          <div class="outgoing-message">
+            <div (contextmenu)="showEditButton[message.id] = true">
+              <strong>Me:</strong> {{ message.content }}<br>
+              <small>{{ message.timestamp }}</small>
+              <div *ngIf="showEditButton[message.id]">
+                <input type="text" [(ngModel)]="message.editedContent">
+                <button (click)="onAcceptEdit(message)">Accept</button>
+                <button (click)="onDeclineEdit(message)">Decline</button>
+                <button (click)="deleteMessage(message)">Delete</button>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </li>
+    </ul>
   </div>
+  
   <div class="send-message-container" *ngIf="messages.length > 0">
   </div>
     <input style="margin-left: 189px;" type="text" [(ngModel)]="newMessageContent" placeholder="Type your message...">

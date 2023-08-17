@@ -45,6 +45,16 @@ export class ConversationhistoryComponent implements OnInit {
     });
     this.signalRservice.startConnection();
  
+// This is test part
+
+this.signalRservice.onReceiveMessage((receivedMessage: Message) => {
+  console.log('Received message:', receivedMessage);
+  if (receivedMessage.receiverId === this.userId) {
+  this.messages.push(receivedMessage);
+  }
+});
+
+
 
   }
 //  loadConversationHistory(userId: string) {
@@ -131,12 +141,13 @@ loadMoreMessages(): void {
           content: this.newMessageContent,
           timestamp: new Date().toISOString()
         };
+       // this.messages.push(newMessage);
         this.signalRservice.sendMessage(newMessage);
         this.signalRservice.onReceiveMessage((receivedmessage: Message) => {
           console.log('Received message:', receivedmessage);
           // Handle the received message here, for example, by adding it to the messages array
           this.messages.push(receivedmessage);});
-          this.cdr.detectChanges();
+          //this.cdr.detectChanges();
           // Clear the new message input field
         this.newMessageContent = '';
       },
