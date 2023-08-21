@@ -36,64 +36,40 @@ export class ConversationhistoryComponent implements OnInit {
   /**
    *
    */
-  constructor(private route:ActivatedRoute,private messageSevice:MessageService,private userService:UserService,private signalRservice:SignalService,private cdr: ChangeDetectorRef) { } 
+  constructor(private route:ActivatedRoute,
+    private messageSevice:MessageService,private userService:UserService,
+    private signalRservice:SignalService) { } 
   
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.userId = params['userId'];
+      // this.selectedUserId=params['senderId'];
+
+      console.log('userId:', this.userId);
+      console.log('selectedUserId:', this.selectedUserId);
       this.loadConversationHistory();
     });
-    this.signalRservice.startConnection();
+    //this.signalRservice.startConnection();
  
 // This is test part
 
-this.signalRservice.onReceiveMessage((receivedMessage: Message) => {
+this.signalRservice.onReceiveMessage((receivedMessage: any,senderId: string) => {
   console.log('Received message:', receivedMessage);
-  if (receivedMessage.receiverId === this.userId) {
-  this.messages.push(receivedMessage);
-  }
+  
+    const newReceivedMessage= {
+     senderId :senderId,
+      receiverId: receivedMessage.receiverId,
+      content: receivedMessage.content,
+      timestamp: receivedMessage.timestamp
+    };
+  this.messages.push(newReceivedMessage);
+  
 });
 
 
 
   }
-//  loadConversationHistory(userId: string) {
-//   this.selectedUserId=userId;
-  
-  
-//    this.messageSevice.getConversationHistory(this.userId).subscribe(
-//     (data) => {
-//       this.messages = data;
-//       this.isLoading = false;
-//       console.log("here is the id",this.selectedUserId,userId);
-//     },
-//     (error)=>
-//     {
-//       console.log('error in fetching history',error);
-      
-//       this.isLoading=false;
-//     }
-//    );
-  
-  
-//   }
 
-// loadConversationHistory(userId: string) {
-//   this.selectedUserId = userId;
-
-//   this.messageSevice.getConversationHistory(this.selectedUserId).subscribe(
-//     (data) => {
-//       this.messages = data;
-//       this.isLoading = false;
-//       console.log("here is the id", this.selectedUserId, userId);
-//       console.log(data);
-//     },
-//     (error) => {
-//       console.log('error in fetching history', error);
-//       this.isLoading = false;
-//     }
-//   );
-// }
 loadConversationHistory(): void {
   this.messageSevice.getConversationHistory(this.userId, this.before, this.count, this.sort)
     .subscribe((data: any[]) => {
@@ -112,16 +88,7 @@ loadMoreMessages(): void {
   get userList(): any[] {
     return this.userService.userList;
   }
-  // sendMessage() {
-  //   const receiverId = this.userId; 
-  //   const message = this.messageToSend;
-  //   try {
-  //      this.signalRservice.sendMessage(receiverId, message);
-  //     console.log('Message sent successfully','receiver Id is',receiverId);
-  //   } catch (error) {
-  //     console.error('Error sending message:', error);
-  //   }
-  // }
+ 
   
   private appendMessageToConversation(message: string) {
     this.conversationHistory.push(message);
@@ -136,55 +103,38 @@ loadMoreMessages(): void {
       (response) => {
         // Message sent successfully, append the new message to the conversation history
         const newMessage = {
-          senderId:this.selectedUserId ,
+          senderId :localStorage.getItem('id'),
           receiverId:this.userId ,
           content: this.newMessageContent,
           timestamp: new Date().toISOString()
         };
-       // this.messages.push(newMessage);
+        console.log("Message to send",newMessage);
+              // this.messages.push(newMessage);
         this.signalRservice.sendMessage(newMessage);
         this.signalRservice.onReceiveMessage((receivedmessage: Message) => {
           console.log('Received message:', receivedmessage);
-          // Handle the received message here, for example, by adding it to the messages array
-          this.messages.push(receivedmessage);});
-          //this.cdr.detectChanges();
-          // Clear the new message input field
+          const msg={
+            senderId :receivedmessage.senderId,
+            receiverId :receivedmessage.receiverId,
+            content:receivedmessage.content,
+            timestamp:receivedmessage.timestamp
+
+          }
+         
+          //this.messages.push(msg);
+        });
+        //this.cdr.detectChanges();
         this.newMessageContent = '';
-      },
-      (error) => {
-        console.log('error in sending message', error);
-        // Display relevant error message to the user
-      }
-    );
+      // },
+      // (error) => {
+      //   console.log('error in sending message', error);
+      //   // Display relevant error message to the user
+      // }
+       } );
   }
 
 
 
-  // sendMessage() {
-  //   if (!this.newMessageContent.trim()) {
-  //     return; // Don't send empty messages
-  //   }
-  
-  //   this.messageSevice.sendNewMessage(this.userId, this.newMessageContent).subscribe(
-  //     (response) => {
-  //       // Message sent successfully, append the new message to the conversation history
-  //       const newMessage = {
-  //         senderId:this.selectedUserId ,
-  //         receiverId:this.userId ,
-  //         content: this.newMessageContent,
-  //         timestamp: new Date().toISOString()
-  //       };
-  //       this.messages.push(newMessage);
-  
-  //       // Clear the new message input field
-  //       this.newMessageContent = '';
-  //     },
-  //     (error) => {
-  //       console.log('error in sending message', error);
-  //       // Display relevant error message to the user
-  //     }
-  //   );
-  // }
   
   onContextMenu(event: MouseEvent, message: any) {
     event.preventDefault();
@@ -293,6 +243,18 @@ loadMoreMessages(): void {
       this.searchResultsSubscription.unsubscribe();
     }
   }
+
+
+
+// Inside your ConversationhistoryComponent class
+getSenderName(senderId: string): string {
+  // Implement logic to retrieve the sender's name based on senderId
+  // For example, you can retrieve the sender's name from the userList
+  const sender = this.userList.find(user => user.id === senderId);
+  return sender ? sender.name : 'Unknown Sender';
+}
+
+
 }
 
 
