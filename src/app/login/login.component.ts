@@ -59,6 +59,7 @@ export class LoginComponent implements OnInit {
       (response)=>{
 
         localStorage.setItem('jwtToken',response.token);
+        localStorage.setItem('id',response.profile.id);
         console.log('User login successful', response);
         this.router.navigate(['/chat']);
       },

@@ -75,4 +75,15 @@ export class MessageService {
     return this.http.delete(`${this.apiUrl}/${messageId}`, httpOptions);
   }
 
+  searchMessages(query: string): Observable<any[]> {
+    const token = localStorage.getItem('jwtToken');
+    const httpOptions = {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      })
+    };
+    return this.http.get<any[]>(`${this.apiUrl}/search?query=${query}`,httpOptions);
+  }
+
 }

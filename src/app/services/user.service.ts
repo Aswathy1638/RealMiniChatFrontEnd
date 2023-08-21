@@ -46,7 +46,23 @@ GetUserList():Observable<any[]>
   return this.http.get<any[]>(`${this.apiUrl}`, { headers });
 }
 
+getCurrentUser(): Observable<any> {
+  const token = localStorage.getItem('jwtToken');
+  if (!token) {
+    throw new Error('JWT token not found.');
+  }
 
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  return this.http.get<any>(`${this.apiUrl}/current-user`, { headers }).pipe(
+    catchError((error) => {
+      // Handle and log errors here if needed
+      return throwError(error);
+    })
+  );
+}
 
 
 }

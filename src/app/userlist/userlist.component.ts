@@ -13,6 +13,9 @@ export class UserlistComponent  implements OnInit{
    isLoading : boolean=true;
    conversationId!: number;
    messages :any[]=[];
+   searchResultsSubscription: any;
+  searchResults:any[]=[];
+  searchQuery: any;
    
   /**
    *
@@ -31,5 +34,32 @@ export class UserlistComponent  implements OnInit{
   loadConversationHistory(userId:string) {
     this.router.navigate(['/chat/user', userId]);
    
+    }
+
+
+    searchMessages(): void {
+      if (this.searchQuery.trim() === '') {
+        return;
+      }
+  
+      // Call the message service to search for messages
+      this.searchResultsSubscription = this.messageService
+        .searchMessages(this.searchQuery)
+        .subscribe(
+          (results) => {
+            this.searchResults = results;
+          },
+          (error) => {
+            console.error('Error searching messages:', error);
+            // Handle error and display appropriate message
+          }
+        );
+    }
+  
+    closeSearchResults(): void {
+      this.searchResults = [];
+      if (this.searchResultsSubscription) {
+        this.searchResultsSubscription.unsubscribe();
+      }
     }
 }
