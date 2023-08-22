@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import {  HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { Message } from '../Message.model';
+import { Subject } from 'rxjs';
 
 
 @Injectable({
@@ -12,6 +13,7 @@ export class SignalService {
   private hubConnection :signalR.HubConnection;
   private isConnectionEstablished: boolean = false;
   private connectionPromise: Promise<void>;
+  private messageReceivedSubject: Subject<{ editedMessage: any, editorId: string }> = new Subject();
 
   constructor() { 
     this.hubConnection=new HubConnectionBuilder()
@@ -164,5 +166,55 @@ export class SignalService {
       console.warn('SignalR connection is not established yet.');
     }
   }
+
+
+//   async sendMessageEdited(editedMessage: any, editorId: string): Promise<void> {
+//     await this.connectionPromise;
+//     if (this.isConnectionEstablished) {
+//       this.hubConnection.invoke('EditMessage', editedMessage, editorId);
+//       console.log('Edit message sent successfully');
+//     } else {
+//       console.warn('SignalR connection is not established yet.');
+//     }
+//   }
+// // onMessageEdited(callback: (editedMessage: any, editorId: string) => void): void {
+// //   if (this.hubConnection) {
+// //     this.hubConnection.on('MessageEdited', (editedMessage: any, editorId: string) => {
+// //       console.log('MessageEdited:', editedMessage);
+// //       callback(editedMessage, editorId);
+// //       console.log('Callback function:', callback);
+// //     });
+// //   }
+// // }
+// async onMessageEdited(callback: (editedMessage: any, editorId: string) => void): Promise<void> {
+//   await this.connectionPromise;
+//   if (this.isConnectionEstablished) {
+//     this.hubConnection.on('MessageEdited', (editedMessage: any, editorId: string) => {
+//       console.log('MessageEdited:', editedMessage);
+//       callback(editedMessage, editorId);
+//       console.log('Callback function:');
+//     });
+//   } else {
+//     console.warn('SignalR connection is not established yet.');
+//   }
+// }
+
+async invokeEditMessage(editedMessage: any, editorId: string): Promise<void> {
+  await this.connectionPromise;
+  if (this.isConnectionEstablished) {
+    await this.hubConnection.invoke('EditMessage', editedMessage, editorId);
+  } else {
+    console.warn('SignalR connection is not established yet.');
+  }
+}
+
+onMessageEdited(callback: (editedMessage: any, editorId: string) => void): void {
+  this.hubConnection.on('messageedited', (editedMessage: any, editorId: string) => {
+    console.log('MessageEdited:', editedMessage);
+    
+    callback(editedMessage, editorId);
+    
+  });
+}
 
 }

@@ -29,7 +29,8 @@ export class ConversationhistoryComponent implements OnInit {
   searchResultsSubscription: any;
   searchResults:any[]=[];
   searchQuery: any;
-  conversationHistory: string[] = [];
+  //conversationHistory: string[] = [];
+  conversationHistory: { id:string,timestamp: string, content: string }[] = []; 
   messageToSend: string = '';
 
  
@@ -66,10 +67,36 @@ this.signalRservice.onReceiveMessage((receivedMessage: any,senderId: string) => 
   
 });
 
+// this.signalRservice.onMessageEdited((editedMessage:any,editorId:any) => {
+//   console.log('Edited Message :',editedMessage);
+//  });
 
 
+  this.signalRservice.onMessageEdited((editedMessage:any,editorId:string) =>{
+
+    
+    console.log('Received edited message:', editedMessage);
+    console.log('Editor ID:', editorId);
+    const newReceivedMessage= {
+      messageId:editedMessage.messageId,
+      senderId :editedMessage.senderId,
+       receiverId: editedMessage.receiverId,
+       content: editedMessage.content,
+       timestamp: editedMessage.timestamp
+     };
+    
+    this.handleEditedMessage(newReceivedMessage, editorId);
+   
+  });
+    
   }
-
+  private handleEditedMessage(editedMessage: any, editorId: string) {
+    const messageIndex = this.messages.findIndex((msg) => msg.id === editedMessage.messageId);
+    if (messageIndex !== -1) {
+      this.messages[messageIndex].content = editedMessage.content;
+      this.messages[messageIndex].edited = true; 
+    }
+  }
 loadConversationHistory(): void {
   this.messageSevice.getConversationHistory(this.userId, this.before, this.count, this.sort)
     .subscribe((data: any[]) => {
@@ -90,9 +117,9 @@ loadMoreMessages(): void {
   }
  
   
-  private appendMessageToConversation(message: string) {
-    this.conversationHistory.push(message);
-  }
+  // private appendMessageToConversation(message: string) {
+  //   this.conversationHistory.push(message);
+  // }
 
  sendMessage() {
     if (!this.newMessageContent.trim()) {
@@ -161,6 +188,13 @@ loadMoreMessages(): void {
     }
   }
 
+  // startEditing(message: any) {
+  //   this.messages.forEach((msg) => (msg.editing = false));
+  //   this.editingMessage = message;
+  //   message.editing = true;
+  //   message.editedContent = message.content;
+  // }
+
   startEditing(message: any) {
     this.messages.forEach((msg) => (msg.editing = false));
     this.editingMessage = message;
@@ -168,29 +202,74 @@ loadMoreMessages(): void {
     message.editedContent = message.content;
   }
 
+
   cancelEditing(message: any) {
     message.editing = false;
     this.editingMessage = null;
   }
 
-  onAcceptEdit(message: any) {
-    const updatedMessage = { ...message, content: message.editedContent };
-    this.messageSevice.updateMessage(message.id, updatedMessage).subscribe(
-      (response) => {
-        // Update the message in the conversation history
-        const index = this.messages.findIndex((m) => m.id === message.id);
-        if (index !== -1) {
-          this.messages[index] = updatedMessage;
-        }
-        this.cancelEditing(message);
-      },
-      (error) => {
-        console.log('error in updating message', error);
-        // Display relevant error message to the user
-      }
-    );
-  }
+  // onAcceptEdit(message: any) {
+  //   const updatedMessage = { ...message, content: message.editedContent };
+  //   this.messageSevice.updateMessage(message.id, updatedMessage).subscribe(
+  //     (response) => {
+  //       // Update the message in the conversation history
+  //       const index = this.messages.findIndex((m) => m.id === message.id);
+  //       if (index !== -1) {
+  //         this.messages[index] = updatedMessage;
+  //         const senderId = updatedMessage.senderId; 
+  //         this.signalRservice.onMessageEdited(updatedMessage);
+  //       }
+  //       this.cancelEditing(message);
+  //     },
+  //     (error) => {
+  //       console.log('error in updating message', error);
+  //       // Display relevant error message to the user
+  //     }
+  //   );
+  // }
+  // onAcceptEdit(message: any) {
+  //   const updatedMessage = { ...message, content: message.editedContent };
+  //   this.messageSevice.updateMessage(message.id, updatedMessage).subscribe(
+  //     (response) => {
+  //       // Update the local messages array immediately
+  //       const index = this.messages.findIndex((m) => m.id === message.id);
+  //       if (index !== -1) {
+  //         this.messages[index] = updatedMessage;
+  //       }
+  //       this.cancelEditing(message);
+  
+  //       // Emit a signal to the server using SignalR to notify other clients about the edit
+  //       const editorId = localStorage.getItem('id')||'';
+  //       this.signalRservice.sendMessageEdited(updatedMessage, editorId);
+  //     },
+  //     (error) => {
+  //       console.log('error in updating message', error);
+  //       // Display relevant error message to the user
+  //     }
+  //   );
+  // }
 
+  onAcceptEdit(message: any) {
+    // Update the edited message locally
+    const updatedMessage = { ...message, content: message.editedContent };
+    this.messageSevice.updateMessage(message.id, updatedMessage)
+      .subscribe(
+        (response) => {
+          const index = this.messages.findIndex((m) => m.id === message.id);
+                if (index !== -1) {
+                  const editorId = localStorage.getItem('id') || '';
+                  this.signalRservice.invokeEditMessage(updatedMessage, editorId);
+                   this.messages[index] = updatedMessage;
+                   this.cancelEditing(message);
+                 }
+          // Emit a signal to the server using SignalR to notify other clients about the edit
+        },
+        (error) => {
+          console.log('Error updating message', error);
+        }
+      );
+  }
+  
   onDeclineEdit(message: any) {
     this.cancelEditing(message);
   }
