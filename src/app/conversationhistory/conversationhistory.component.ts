@@ -88,8 +88,22 @@ this.signalRservice.onReceiveMessage((receivedMessage: any,senderId: string) => 
     this.handleEditedMessage(newReceivedMessage, editorId);
    
   });
+  this.signalRservice.onMessageDeleted((messageId:number) =>{
+
     
-  }
+    console.log('Deleted message:', messageId);
+    this.handleDeletedMessage(messageId);
+       
+  });
+}
+   private handleDeletedMessage(messageId:number){
+    const index = this.messages.findIndex((msg) => msg.id === messageId);
+    if (index !== -1) {
+      this.messages.splice(index, 1);
+     
+    }
+   } 
+  
   private handleEditedMessage(editedMessage: any, editorId: string) {
     const messageIndex = this.messages.findIndex((msg) => msg.id === editedMessage.messageId);
     if (messageIndex !== -1) {
@@ -276,6 +290,26 @@ loadMoreMessages(): void {
   getUserById(userId: number) {
     return this.userList.find(user => user.id === userId);
   }
+  // deleteMessage(message: any) {
+  //   // Show a confirmation dialog to the user
+  //   const confirmation = confirm('Are you sure you want to delete this message?');
+  //   if (!confirmation) {
+  //     return; // User canceled the deletion
+  //   }
+
+  //   // Make the DELETE request to the backend API
+  //   this.messageSevice.deleteMessage(message.id).subscribe(
+  //     (response) => {
+  //       // Upon success, remove the deleted message from the conversation history
+  //       this.messages = this.messages.filter((msg) => msg.id !== message.id);
+  //       console.log('Message deleted successfully', response);
+  //     },
+  //     (error) => {
+  //       console.log('Error deleting message', error);
+  //       // Display relevant error message to the user
+  //     }
+  //   );
+  // }
   deleteMessage(message: any) {
     // Show a confirmation dialog to the user
     const confirmation = confirm('Are you sure you want to delete this message?');
@@ -289,6 +323,7 @@ loadMoreMessages(): void {
         // Upon success, remove the deleted message from the conversation history
         this.messages = this.messages.filter((msg) => msg.id !== message.id);
         console.log('Message deleted successfully', response);
+        this.signalRservice.invokeDeleteMessage(message.id);
       },
       (error) => {
         console.log('Error deleting message', error);
@@ -296,6 +331,7 @@ loadMoreMessages(): void {
       }
     );
   }
+
 
   searchMessages(): void {
     if (this.searchQuery.trim() === '') {

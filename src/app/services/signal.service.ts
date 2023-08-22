@@ -216,5 +216,22 @@ onMessageEdited(callback: (editedMessage: any, editorId: string) => void): void 
     
   });
 }
+async invokeDeleteMessage(messageId: number): Promise<void> {
+  await this.connectionPromise;
+  if (this.isConnectionEstablished) {
+    await this.hubConnection.invoke('DeleteMessage',messageId);
+  } else {
+    console.warn('SignalR connection is not established yet.');
+  }
+}
+
+onMessageDeleted(callback: (messageId: number) => void): void {
+  this.hubConnection.on('messagedeleted', (messagedeleted:number) => {
+    console.log('MessageDeleted:', messagedeleted);
+    
+    callback(messagedeleted);
+    
+  });
+}
 
 }
