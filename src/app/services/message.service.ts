@@ -8,22 +8,6 @@ export class MessageService {
   private apiUrl='https://localhost:7298/api/Messages';
   constructor(private http:HttpClient) { }
 
-  // getConversationHistory(userId:string,count: number = 20, sort: string = 'asc'):Observable<any[]>{
-  //   const url=`${this.apiUrl}/${userId}`
-
-  //   const jwtToken = localStorage.getItem('jwtToken');
-
-  //   const headers = new HttpHeaders({
-  //     'Authorization': `Bearer ${jwtToken}`
-  //   });
-  //   const params = new HttpParams()
-  //   // .set('userId',userId)
-  //     .set('count', count.toString())
-  //     .set('sort', sort);
-  //   return this.http.get<any[]>(url,{ headers, params });
-  // }
-
-
   getConversationHistory(userId: string, before: Date, count: number, sort: string):Observable<any[]>{
     const url=`${this.apiUrl}/${userId}`
 

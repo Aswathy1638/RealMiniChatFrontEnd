@@ -22,12 +22,8 @@ export class UserService {
         const url = `${this.apiUrl}/register`;
         const data = { name, email, password };
     
-        return this.http.post<any>(url, data).pipe(
-          catchError((error) => {
-            // Handle and log errors here if needed
-            return throwError(error);
-          })
-        );
+         return this.http.post<any>(url, data);
+        
       }
       loginUser(email: string, password: string) {
         const url = `${this.apiUrl}/login`;

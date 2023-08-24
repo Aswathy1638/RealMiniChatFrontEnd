@@ -17,9 +17,7 @@ export class UserlistComponent  implements OnInit{
   searchResults:any[]=[];
   searchQuery: any;
    
-  /**
-   *
-   */
+  
   constructor(private userService :UserService,private messageService:MessageService, private router: Router) {}
   ngOnInit(): void {
     this.loadUserList();
@@ -42,7 +40,7 @@ export class UserlistComponent  implements OnInit{
         return;
       }
   
-      // Call the message service to search for messages
+      
       this.searchResultsSubscription = this.messageService
         .searchMessages(this.searchQuery)
         .subscribe(
@@ -51,7 +49,7 @@ export class UserlistComponent  implements OnInit{
           },
           (error) => {
             console.error('Error searching messages:', error);
-            // Handle error and display appropriate message
+           
           }
         );
     }

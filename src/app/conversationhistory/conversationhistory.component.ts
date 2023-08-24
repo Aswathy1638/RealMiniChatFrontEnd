@@ -34,9 +34,7 @@ export class ConversationhistoryComponent implements OnInit {
   messageToSend: string = '';
 
  
-  /**
-   *
-   */
+
   constructor(private route:ActivatedRoute,
     private messageSevice:MessageService,private userService:UserService,
     private signalRservice:SignalService) { } 
@@ -44,8 +42,6 @@ export class ConversationhistoryComponent implements OnInit {
   ngOnInit(): void {
     this.route.params.subscribe(params => {
       this.userId = params['userId'];
-      // this.selectedUserId=params['senderId'];
-
       console.log('userId:', this.userId);
       console.log('selectedUserId:', this.selectedUserId);
       this.loadConversationHistory();
@@ -67,14 +63,7 @@ this.signalRservice.onReceiveMessage((receivedMessage: any,senderId: string) => 
   
 });
 
-// this.signalRservice.onMessageEdited((editedMessage:any,editorId:any) => {
-//   console.log('Edited Message :',editedMessage);
-//  });
-
-
-  this.signalRservice.onMessageEdited((editedMessage:any,editorId:string) =>{
-
-    
+ this.signalRservice.onMessageEdited((editedMessage:any,editorId:string) =>{ 
     console.log('Received edited message:', editedMessage);
     console.log('Editor ID:', editorId);
     const newReceivedMessage= {
@@ -131,10 +120,6 @@ loadMoreMessages(): void {
   }
  
   
-  // private appendMessageToConversation(message: string) {
-  //   this.conversationHistory.push(message);
-  // }
-
  sendMessage() {
     if (!this.newMessageContent.trim()) {
       return; // Don't send empty messages
@@ -161,16 +146,11 @@ loadMoreMessages(): void {
             timestamp:receivedmessage.timestamp
 
           }
-         
-          //this.messages.push(msg);
+                  
         });
         //this.cdr.detectChanges();
         this.newMessageContent = '';
-      // },
-      // (error) => {
-      //   console.log('error in sending message', error);
-      //   // Display relevant error message to the user
-      // }
+    
        } );
   }
 
@@ -180,7 +160,7 @@ loadMoreMessages(): void {
   onContextMenu(event: MouseEvent, message: any) {
     event.preventDefault();
     if (message.senderId === this.userId) {
-      // Only show the context menu for the current user's messages
+    
       if (!message.editing) {
         this.startEditing(message);
       } else {
@@ -202,13 +182,6 @@ loadMoreMessages(): void {
     }
   }
 
-  // startEditing(message: any) {
-  //   this.messages.forEach((msg) => (msg.editing = false));
-  //   this.editingMessage = message;
-  //   message.editing = true;
-  //   message.editedContent = message.content;
-  // }
-
   startEditing(message: any) {
     this.messages.forEach((msg) => (msg.editing = false));
     this.editingMessage = message;
@@ -222,46 +195,7 @@ loadMoreMessages(): void {
     this.editingMessage = null;
   }
 
-  // onAcceptEdit(message: any) {
-  //   const updatedMessage = { ...message, content: message.editedContent };
-  //   this.messageSevice.updateMessage(message.id, updatedMessage).subscribe(
-  //     (response) => {
-  //       // Update the message in the conversation history
-  //       const index = this.messages.findIndex((m) => m.id === message.id);
-  //       if (index !== -1) {
-  //         this.messages[index] = updatedMessage;
-  //         const senderId = updatedMessage.senderId; 
-  //         this.signalRservice.onMessageEdited(updatedMessage);
-  //       }
-  //       this.cancelEditing(message);
-  //     },
-  //     (error) => {
-  //       console.log('error in updating message', error);
-  //       // Display relevant error message to the user
-  //     }
-  //   );
-  // }
-  // onAcceptEdit(message: any) {
-  //   const updatedMessage = { ...message, content: message.editedContent };
-  //   this.messageSevice.updateMessage(message.id, updatedMessage).subscribe(
-  //     (response) => {
-  //       // Update the local messages array immediately
-  //       const index = this.messages.findIndex((m) => m.id === message.id);
-  //       if (index !== -1) {
-  //         this.messages[index] = updatedMessage;
-  //       }
-  //       this.cancelEditing(message);
   
-  //       // Emit a signal to the server using SignalR to notify other clients about the edit
-  //       const editorId = localStorage.getItem('id')||'';
-  //       this.signalRservice.sendMessageEdited(updatedMessage, editorId);
-  //     },
-  //     (error) => {
-  //       console.log('error in updating message', error);
-  //       // Display relevant error message to the user
-  //     }
-  //   );
-  // }
 
   onAcceptEdit(message: any) {
     // Update the edited message locally
@@ -290,34 +224,15 @@ loadMoreMessages(): void {
   getUserById(userId: number) {
     return this.userList.find(user => user.id === userId);
   }
-  // deleteMessage(message: any) {
-  //   // Show a confirmation dialog to the user
-  //   const confirmation = confirm('Are you sure you want to delete this message?');
-  //   if (!confirmation) {
-  //     return; // User canceled the deletion
-  //   }
-
-  //   // Make the DELETE request to the backend API
-  //   this.messageSevice.deleteMessage(message.id).subscribe(
-  //     (response) => {
-  //       // Upon success, remove the deleted message from the conversation history
-  //       this.messages = this.messages.filter((msg) => msg.id !== message.id);
-  //       console.log('Message deleted successfully', response);
-  //     },
-  //     (error) => {
-  //       console.log('Error deleting message', error);
-  //       // Display relevant error message to the user
-  //     }
-  //   );
-  // }
+ 
   deleteMessage(message: any) {
     // Show a confirmation dialog to the user
     const confirmation = confirm('Are you sure you want to delete this message?');
     if (!confirmation) {
-      return; // User canceled the deletion
+      return; 
     }
 
-    // Make the DELETE request to the backend API
+   
     this.messageSevice.deleteMessage(message.id).subscribe(
       (response) => {
         // Upon success, remove the deleted message from the conversation history
@@ -359,17 +274,10 @@ loadMoreMessages(): void {
     }
   }
 
-
-
-// Inside your ConversationhistoryComponent class
 getSenderName(senderId: string): string {
-  // Implement logic to retrieve the sender's name based on senderId
-  // For example, you can retrieve the sender's name from the userList
   const sender = this.userList.find(user => user.id === senderId);
   return sender ? sender.name : 'Unknown Sender';
 }
-
-
 }
 
 

@@ -42,16 +42,6 @@ export class LogsService {
     
   }
   }
-  /* getLogs():Observable<any[]>
-{
-  const token = localStorage.getItem('jwtToken');
-  if (!token) {
-    throw new Error('JWT token not found.');
-  }
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
-  return this.http.get<any[]>(`${this.baseUrl}`, { headers });
-}*/
+  
 
 

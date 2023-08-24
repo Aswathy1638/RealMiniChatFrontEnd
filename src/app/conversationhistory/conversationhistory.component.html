@@ -1,47 +1,6 @@
 
 
-<!-- <div class="chat-container">
-  <div class="background">
-    <img src="../../assets/chat-messaging-speech-bubble-icon.jpg">
-  <h2 style="margin-left: 220px;">Conversation History</h2>
-  <div *ngIf="isLoading" class="loading-message">
-    Loading conversation history...
-  </div>
-  <div *ngIf="!isLoading && messages.length === 0" class="no-messages">
-    No conversation history found.
-  </div>
-  <div *ngIf="messages.length > 0" class="chat">
-    <ul>
-      <li *ngFor="let message of messages" class="chat-message">
-        <div *ngIf="message.senderId === userId" class="incoming-message">
-          <strong>{{message.name}}</strong> {{ message.content }}<br>
-          <small>{{ message.timestamp }}</small>
-        </div>
-        <li *ngFor="let message of messages" class="chat-message" (contextmenu)="onContextMenu($event, message)">
-        <div *ngIf="message.receiverId === userId" class="outgoing-message"> -->
-          <!-- <strong>From:</strong> {{ message.senderId }}<br>  -->
-         <!-- <strong>Me:</strong>
-         <div (contextmenu)="showEditButton[message.id] = true">
-          {{ message.content }}<br>
-          <small>{{ message.timestamp }}</small>
-                   
-          <div *ngIf="showEditButton[message.id]">
-            <input type="text" [(ngModel)]="message.editedContent">
-            <button (click)="onAcceptEdit(message)">Accept</button>
-            <button (click)="onDeclineEdit(message)">Decline</button>
-            <button (click)="deleteMessage(message)">Delete</button>
-            <div class="send-message-container">
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-  </ul> 
-</div>
-<input style="margin-left: 189px;" type="text" [(ngModel)]="newMessageContent" placeholder="Type your message...">
-<button (click)="sendMessage()">Send</button>
 
-</div> -->
 <div class="bg">
   <div class="background">
     <img src="../../assets/chat-messaging-speech-bubble-icon.jpg">
@@ -92,34 +51,7 @@
     <div *ngIf="!isLoading && messages.length === 0" class="no-messages">
       No conversation history found.
     </div>
-  <!-- <div *ngIf="messages.length > 0" class="chat">
-    <ul>
-      <li *ngFor="let message of messages" class="chat-message" (contextmenu)="onContextMenu($event, message) " >
-        <div *ngIf="message.senderId === userId; else receivedMessage" class="incoming-message">
-          <strong>{{ message.name }}</strong> {{ message.content }}<br>
-          <small>{{ message.timestamp }}</small>
-        </div>
-        <ng-template #receivedMessage>
-          <div class="outgoing-message">
-            <div (contextmenu)="showEditButton[message.id] = true">
-
-              <strong>Me:</strong> {{ message.content }}<br>
-              <small>{{ message.timestamp }}</small>
-              
-              <div *ngIf="showEditButton[message.id]">
-                <input type="text" [(ngModel)]="message.editedContent">
-                <button (click)="onAcceptEdit(message)">Accept</button>
-                <button (click)="onDeclineEdit(message)">Decline</button>
-                <button (click)="deleteMessage(message)">Delete</button>
-              </div>
-              
-            </div>
-          </div>
-          
-        </ng-template>
-      </li>
-    </ul>
-  </div> -->
+  
 
   <div *ngIf="messages.length > 0" class="chat">
     <ul>
